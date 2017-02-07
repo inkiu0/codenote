@@ -11,7 +11,7 @@ bloom是模拟真实相机，较亮的部分扩散到周围，造成一种朦胧
 * 然后在第二和第三个pass中把较亮的图像进行高斯模糊  
 * 最后在第四个pass中把模糊后的亮部和原图进行混合得到bloom效果  
 
-```  
+{% codeblock lang:cs %}  
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
         if (material != null)
@@ -39,9 +39,9 @@ bloom是模拟真实相机，较亮的部分扩散到周围，造成一种朦胧
             Graphics.Blit(src, dest);
         }
     }
-```  
+{% endcodeblock %}    
 <!-- more -->
-```  
+{% codeblock lang:glsl %}  
 Shader "UnityShaderLearning/Bloom"
 {
 	Properties
@@ -134,4 +134,4 @@ Shader "UnityShaderLearning/Bloom"
 	}
 	Fallback Off
 }
-```  
+{% endcodeblock %}  
