@@ -5,9 +5,8 @@ date: 2017-02-21 23:44
 comments: true
 tags: 
 	- Lua
-    - Unity
+	- Unity
 ---
-# Lua性能分析器的实现  
 ![](/assets/blogImg/Unity/luaprofiler.gif)  
 这个Profiler主要由3部分组成：
 1. 重写luaC库钩子函数的C类  
