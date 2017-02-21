@@ -4,9 +4,9 @@ title: "Slua的优化初探"
 date: 2017-02-05 23:27
 comments: true
 tags: 
-	- Lua
-	- Slua
-	- Unity
+	- Lua  
+	- Slua  
+	- Unity  
 ---
 看了[UWA的blog](http://blog.uwa4d.com/archives/USparkle_Lua.html)以后，了解到了tolua对c#对象取值赋值的过程。并且发现slua对比tolua在test1里性能是tolua的6倍，所以很好奇slua做了哪些优化。  
 ## tolua取值赋值的过程  
