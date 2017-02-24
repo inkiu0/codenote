@@ -4,10 +4,10 @@ title: "Lua性能分析器的实现"
 date: 2017-02-21 23:44
 comments: true
 tags: 
-	- Lua  
+	- Lua
+	
 	- Unity  
 ---
-<!--![](/assets/blogImg/Unity/luaprofiler.gif)  -->
 这个Profiler主要由3部分组成：
 1. C类重写luaC库钩子函数  
 2. lua类在钩子的回调中采集信息，并生成报表供C#使用。  
@@ -121,6 +121,12 @@ LUALIB_API int luaopen_bitLib(lua_State *L)
 }
 ```  
 
+### 编译动态链接库
+mac下用gcc生成动态链接库和linux有点不同  
+```  
+gcc -c profiler.c;gcc -O2 -bundle -undefined dynamic_lookup -o profiler.so profiler.o
+```  
+
 ## 编写lua函数  
 lua代码的编写比较简单，主要有以下一些不常用的用法需要注意。  
 ### 引入C库  
@@ -136,10 +142,16 @@ local sethook = p.sethook
 
 ### sethook  
 debug.sethook(onhook, 'crl')的第一个参数是回调函数，第二个参数是事件的mask字符串。  
-- 'c' call事件，包括tail call，调用lua函数时触发。  
-- 'r' return事件，lua代码return的时候出发。
-- 'l' line事件，lua代码执行到新的一行时触发。  
-
+- LUA_MASKCALL 0  
+在解释器调用一个函数时被调用。 钩子将于 Lua 进入一个新函数后，函数获取参数前被调用。  
+- LUA_MASKRET 1  
+在解释器从一个函数中返回时调用。 钩子将于 Lua 离开函数之前的那一刻被调用。执行到returnhook的时候已经函数已经退出了。  
+- LUA_MASKLINE 2  
+在解释器准备开始执行新一行代码，或者跳转到这行代码（即使是同一行跳转）时被调用。  
+- LUA_MASKCOUNT 3  
+在解释器执行一个lua函数的cout指令时被调用。  
+- LUA_HOOKTAILCALL 4  
+在解释器执行一个尾调用的时候触发，尾调用对应的return同时也是它父级的return。  
 回调函数onhook(event, line)第一个参数是事件类型，值为call, tail call, return。line参数是可选的。  
 当我们调用了sethook(onhook, 'cr')的时候，第一个触发的钩子是return sethook。同样当我们调用debug.sethook()来停止的时候，最后一个触发的钩子是call sethook。
 ### getinfo  
