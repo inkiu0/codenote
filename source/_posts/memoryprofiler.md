@@ -130,3 +130,100 @@ lua_insert(L, 2);
 --------------------
 */
 ```  
+
+## getsize  
+### print  
+在编写统计代码的时候，我们市场会用到测试代码。但是需要注意的是，有些测试代码本身就会产生一些内存，以误导我们的测试。比如print，我猜测是因为每次print都产生了一个函数上值。所以我们在print后需要手动 **collectgarbage()** 两次。
+### table
+```c  
+//单位为byte
+size = sizeof(Table) + sizeof(TValue) * t->sizearray + sizeof(Node) * sizenode(t)
+```   
+在macmini中:  
+- sizeof(Table)  = 56  
+- sizeof(TValue) = 16  
+- sizeof(Node)   = 32  
+- sizenode(t)  
+    table的hashtable部分长度，值总是2的幂，a power of 2。hashtable.len为0时，sizenode为1，hashtable.len为1时，sizenode为1。所以想要分辨出0和1需要判断一下t->lastfress，定义宏如下：
+```c  
+#define isdummy(t)		((t)->lastfree == NULL)
+```  
+### function  
+在lua中function分为 **LColsure** 和 **CColsure**，即Lua函数和C函数。  
+```c  
+ttisCclosure(o) ? sizeCclosure(cl->c.nupvalues) : sizeLclosure(cl->l.nupvalues)
+
+//sizeCclosure(n) = sizeof(CClosure) + sizeof(TValue)* (n-1)
+//sizeLclosure(n) = sizeof(LClosure) + sizeof(TValue)* (n-1)
+```  
+- sizeof(CClosure) = 48  
+- sizeof(LClosure) = 40  
+### thread  
+lua中的thread即为Coroutine  
+```lua  
+size = sizeof(lua_State) + sizeof(TValue) * th->stacksize + sizeof(CallInfo) * th->nci
+```  
+- sizeof(lua_State) = 208
+- sizeof(CallInfo) = 72  
+```c  
+/*Current Lua Stack
+--------------------
+-1 TABLE
+--------------------
+*/
+
+int n = 1;
+lua_getfield(dL, -1, "infos");
+
+/*Current Lua Stack
+--------------------
+-1 infos(table)
+-2 TABLE
+--------------------
+*/
+
+lua_pushnil(dL);
+
+/*Current Lua Stack
+--------------------
+-1 nil
+-2 infos(table)
+-3 TABLE
+--------------------
+*/
+
+while (lua_next(dL, -2) != 0)
+{
+
+/*Current Lua Stack
+--------------------
+-1 value
+-2 key
+-3 infos(table)
+-4 TABLE
+--------------------
+*/
+
+    str = lua_tostring(dL, -1);
+    lua_pushstring(L, str);
+    lua_rawseti(L, -2, n);
+    ++n;
+    lua_pop(dL, 1);
+
+/*Current Lua Stack
+--------------------
+-1 key
+-2 infos(table)
+-3 TABLE
+--------------------
+*/
+
+}
+
+/*Current Lua Stack
+--------------------
+-1 infos(table)
+-2 TABLE
+--------------------
+*/
+```  
