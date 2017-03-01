@@ -144,7 +144,8 @@ size = sizeof(Table) + sizeof(TValue) * t->sizearray + sizeof(Node) * sizenode(t
 - sizeof(TValue) = 16  
 - sizeof(Node)   = 32  
 - sizenode(t)  
-    table的hashtable部分长度，值总是2的幂，a power of 2。hashtable.len为0时，sizenode为1，hashtable.len为1时，sizenode为1。所以想要分辨出0和1需要判断一下t->lastfress，定义宏如下：
+> table的hashtable部分长度，值总是2的幂，a power of 2。hashtable.len为0时，sizenode为1，hashtable.len为1时，sizenode为1。所以想要分辨出0和1需要判断一下t->lastfress，定义宏如下：  
+
 ```c  
 #define isdummy(t)		((t)->lastfree == NULL)
 ```  
@@ -152,19 +153,22 @@ size = sizeof(Table) + sizeof(TValue) * t->sizearray + sizeof(Node) * sizenode(t
 在lua中function分为 **LColsure** 和 **CColsure**，即Lua函数和C函数。  
 ```c  
 ttisCclosure(o) ? sizeCclosure(cl->c.nupvalues) : sizeLclosure(cl->l.nupvalues)
-
 //sizeCclosure(n) = sizeof(CClosure) + sizeof(TValue)* (n-1)
 //sizeLclosure(n) = sizeof(LClosure) + sizeof(TValue)* (n-1)
 ```  
+
 - sizeof(CClosure) = 48  
 - sizeof(LClosure) = 40  
+
 ### thread  
 lua中的thread即为Coroutine  
 ```lua  
 size = sizeof(lua_State) + sizeof(TValue) * th->stacksize + sizeof(CallInfo) * th->nci
 ```  
+
 - sizeof(lua_State) = 208
 - sizeof(CallInfo) = 72  
+
 ```c  
 /*Current Lua Stack
 --------------------
