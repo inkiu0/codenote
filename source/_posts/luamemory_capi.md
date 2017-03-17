@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "LuaC库的编写"
+title: "LuaMemory的实现(一)"
 date: 2017-02-24 14:02
 comments: true
 tags: 
@@ -8,7 +8,7 @@ tags:
 	
 	- Unity  
 ---
-## 编写C代码  
+# LuaMemory的实现(一) LuaC库的编写  
 ### lua_next(lua_State *L, int idx)  
 lua_next 先把 table ( lua 栈中 idx 所指的 table )的下一索引弹出，再把 table 当前索引的值弹出。没有数据了返回0，有数据返回非0。  
 ```lua 
@@ -131,9 +131,26 @@ lua_insert(L, 2);
 */
 ```  
 
-## getsize  
+## Lua _G内存结构
+### Lua内存结构  
+Lua内以下类型都是属于GCObject，是有gc方法的。
+- table
+    - [table]self
+    - [table]metatable
+    - [object]kv
+- function
+    - [object]upvalue
+    - [lcl/ccl]self
+- thread
+    - [object]stack
+- userdata
+    - [table]metatable
+    - [table]uservalue
+- string
+    - [TString]self
 ### print  
-在编写统计代码的时候，我们时常会用到测试代码。但是需要注意的是，有些测试代码本身就会产生一些内存，以误导我们的测试。比如print，我猜测是因为每次print都产生了一个函数上值。所以我们在print后需要手动 **collectgarbage()** 。
+在编写统计代码的时候，我们时常会用到测试代码。但是需要注意的是，有些测试代码本身就会产生一些内存，以误导我们的测试。比如print，我猜测是因为每次print都产生了一个函数上值。所以我们在print后需要手动 **collectgarbage()** 。  
+
 ### table
 #### table可能引用的内容
 1. metatable
@@ -145,7 +162,7 @@ lua_insert(L, 2);
 3. 非weak的value
 >value可以是任意类型
 
-#### table本身的大小
+#### table大小计算
 ```c  
 //单位为byte
 size = sizeof(Table) + sizeof(TValue) * t->sizearray + sizeof(Node) * sizenode(t)
@@ -159,7 +176,8 @@ size = sizeof(Table) + sizeof(TValue) * t->sizearray + sizeof(Node) * sizenode(t
 ```c  
 #define isdummy(t)		((t)->lastfree == NULL)
 ```  
-### function可能引用的内容  
+### function
+#### function可能引用的内容  
 1. upvalue  
 >upvalue可以是任意类型  
 
@@ -167,7 +185,7 @@ size = sizeof(Table) + sizeof(TValue) * t->sizearray + sizeof(Node) * sizenode(t
 >function本身可能为Luafunction和Cfunction  
 
 
-### function本身大小  
+#### function大小计算  
 在lua中function分为 **LColsure** 和 **CColsure**，即Lua函数和C函数。  
 ```c  
 ttisCclosure(o) ? sizeCclosure(cl->c.nupvalues) : sizeLclosure(cl->l.nupvalues)
@@ -178,5 +196,36 @@ ttisCclosure(o) ? sizeCclosure(cl->c.nupvalues) : sizeLclosure(cl->l.nupvalues)
 - sizeof(CClosure) = 48  
 - sizeof(LClosure) = 40  
 
-### thread  
+### thread
+#### thread可能引用的类型
+1. stack  
+>stack中的值，以及这些值的local变量  
+
+#### thread大小计算  
 lua中的thread即为Coroutine  
+```c  
+(sizeof(lua_State) + sizeof(TValue) * th->stacksize + sizeof(CallInfo) * th->nci);  
+```  
+
+### userdata
+#### userdata可能引用的类型  
+1. metatable
+>userdata可能有自己的元表  
+
+2. uservalue  
+>userdata的内容，是一个table类型。
+
+#### userdata大小计算  
+```c  
+sizeudata(uvalue(o));
+```  
+
+### string
+#### string大小计算
+```c  
+//string分为LUA_TLNGSTR和LUA_TSHRSTR
+case LUA_TSHRSTR:
+    sizelstring(ts->shrlen);
+case LUA_TLNGSTR:
+    sizelstring(ts->u.lnglen);
+```  
