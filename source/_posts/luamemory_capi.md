@@ -8,7 +8,7 @@ tags:
 	
 	- Unity  
 ---
-# LuaMemory的实现(一) LuaC库的编写  
+# LuaC库的编写  
 ### lua_next(lua_State *L, int idx)  
 lua_next 先把 table ( lua 栈中 idx 所指的 table )的下一索引弹出，再把 table 当前索引的值弹出。没有数据了返回0，有数据返回非0。  
 ```lua 
