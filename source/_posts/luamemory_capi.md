@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "LuaMemoryProfiler的实现"
+title: "LuaC库的编写"
 date: 2017-02-24 14:02
 comments: true
 tags: 
@@ -133,13 +133,23 @@ lua_insert(L, 2);
 
 ## getsize  
 ### print  
-在编写统计代码的时候，我们市场会用到测试代码。但是需要注意的是，有些测试代码本身就会产生一些内存，以误导我们的测试。比如print，我猜测是因为每次print都产生了一个函数上值。所以我们在print后需要手动 **collectgarbage()** 两次。
+在编写统计代码的时候，我们时常会用到测试代码。但是需要注意的是，有些测试代码本身就会产生一些内存，以误导我们的测试。比如print，我猜测是因为每次print都产生了一个函数上值。所以我们在print后需要手动 **collectgarbage()** 。
 ### table
+#### table可能引用的内容
+1. metatable
+>metatable即该table的原表，一定是一个table。
+
+2. 非weak的key
+>key可以是任意类型  
+
+3. 非weak的value
+>value可以是任意类型
+
+#### table本身的大小
 ```c  
 //单位为byte
 size = sizeof(Table) + sizeof(TValue) * t->sizearray + sizeof(Node) * sizenode(t)
-```   
-在macmini中:  
+```     
 - sizeof(Table)  = 56  
 - sizeof(TValue) = 16  
 - sizeof(Node)   = 32  
@@ -149,7 +159,15 @@ size = sizeof(Table) + sizeof(TValue) * t->sizearray + sizeof(Node) * sizenode(t
 ```c  
 #define isdummy(t)		((t)->lastfree == NULL)
 ```  
-### function  
+### function可能引用的内容  
+1. upvalue  
+>upvalue可以是任意类型  
+
+2. 本身  
+>function本身可能为Luafunction和Cfunction  
+
+
+### function本身大小  
 在lua中function分为 **LColsure** 和 **CColsure**，即Lua函数和C函数。  
 ```c  
 ttisCclosure(o) ? sizeCclosure(cl->c.nupvalues) : sizeLclosure(cl->l.nupvalues)
@@ -162,72 +180,3 @@ ttisCclosure(o) ? sizeCclosure(cl->c.nupvalues) : sizeLclosure(cl->l.nupvalues)
 
 ### thread  
 lua中的thread即为Coroutine  
-```lua  
-size = sizeof(lua_State) + sizeof(TValue) * th->stacksize + sizeof(CallInfo) * th->nci
-```  
-
-- sizeof(lua_State) = 208
-- sizeof(CallInfo) = 72  
-
-```c  
-/*Current Lua Stack
---------------------
--1 TABLE
---------------------
-*/
-
-int n = 1;
-lua_getfield(dL, -1, "infos");
-
-/*Current Lua Stack
---------------------
--1 infos(table)
--2 TABLE
---------------------
-*/
-
-lua_pushnil(dL);
-
-/*Current Lua Stack
---------------------
--1 nil
--2 infos(table)
--3 TABLE
---------------------
-*/
-
-while (lua_next(dL, -2) != 0)
-{
-
-/*Current Lua Stack
---------------------
--1 value
--2 key
--3 infos(table)
--4 TABLE
---------------------
-*/
-
-    str = lua_tostring(dL, -1);
-    lua_pushstring(L, str);
-    lua_rawseti(L, -2, n);
-    ++n;
-    lua_pop(dL, 1);
-
-/*Current Lua Stack
---------------------
--1 key
--2 infos(table)
--3 TABLE
---------------------
-*/
-
-}
-
-/*Current Lua Stack
---------------------
--1 infos(table)
--2 TABLE
---------------------
-*/
-```  
