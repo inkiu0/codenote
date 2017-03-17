@@ -76,12 +76,14 @@ Snapshot[pointer] =
 
 3. 传输调整后的数据给C#
 把得到的数据做了处理以后生成一串jsonstring传给c#，然后c#解析出一个树状的Dictonary。c#中有一个递归的结构LeakItemNode，用来储存数据。LuaMemoryEditor持有根节点m_Root    
-```c#  
+
+```cs  
 //...
 //一些从json中解析出来的数据
 //...
 List<LeakItemNode> childList = list<LeakItemNode>();
 ```  
+
 ## 另一个lua_state
 在C中用一个静态变量储存起来的lua_state *pL，所有的采样数据都储存在其中。另外提供3个重要的接口用以操作该栈：
 1. insert(idx)  
