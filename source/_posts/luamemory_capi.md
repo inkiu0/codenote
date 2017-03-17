@@ -147,7 +147,9 @@ Lua内以下类型都是属于GCObject，是有gc方法的。
     - [table]metatable
     - [table]uservalue
 - string
-    - [TString]self
+    - [TString]self  
+
+
 ### print  
 在编写统计代码的时候，我们时常会用到测试代码。但是需要注意的是，有些测试代码本身就会产生一些内存，以误导我们的测试。比如print，我猜测是因为每次print都产生了一个函数上值。所以我们在print后需要手动 **collectgarbage()** 。  
 
