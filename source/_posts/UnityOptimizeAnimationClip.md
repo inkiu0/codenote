@@ -47,6 +47,9 @@ tags:
 |优化后|23.34kb|18.69kb|7.4kb|  
 |对比|-73%|-60|-27%|  
 
+## 总结  
+隔壁项目组对他们项目中所有的动画文件都进行了优化。其中文件大小从820m->225, ab大小从72m->64m, 内存大小从50m->40m。总的来说动画文件的scale越多优化越明显。  
+
 ## 取BlobSize代码  
 ```csharp  
 AnimationClip aniClip = AssetDatabase.LoadAssetAtPath<AnimationClip> (path);
