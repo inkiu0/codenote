@@ -35,11 +35,11 @@ tags:
 |优化后|5.87kb|3.63kb|3.1kb|2.8kb|  
 |对比|-50%|-58%|-0%|-0%|  
 
-![](animationclipinspector.png)  
+![](/assets/blogImg/Unity/OptimizeAnimationClip/animationclipinspector.png)  
 红色框内即是BlobSize，在我的理解，FileSize是指文件在硬盘中占的大小，BlobSize是从内存中的文件序列化出来的对象的二进制大小。Editor下的MemorySize不仅有序列化后的内存大小，还维护了一份原文件的内存。就像我们在Editor下加载一张Texture内存是双份一样，而真机下就约等于BlobSize。真机下的MemorySize和Inspector里的BlobSize非常接近，BlobSize可以认为是真机上的内存大小，这个大小更有参考意义。所以只压缩精度的动画文件，BlobSize是不会有任何变化的，因为每个浮点数固定占32bit。而文件大小、AB大小、Editor下的内存大小，压缩精度后都会变小。  
 
 下面这次测试证实了我的想法，下图这个动画文件原来Inspector中Scale的值为4，即有Scale曲线。所以BlobSize减小了27%。  
-![](hasscalecurve.png)  
+![](/assets/blogImg/Unity/OptimizeAnimationClip/hasscalecurve.png)  
 
 |前后|FileSize|Editor MemorySize|真机MemorySize|BlobSize|  
 |:-:|:------:|:---------------:|:-----------:|:------:|  
