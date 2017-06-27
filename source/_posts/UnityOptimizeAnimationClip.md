@@ -78,9 +78,18 @@ Debug.Log(EditorUtility.FormatBytes((int)sizeInfo.GetValue(stats)));//BlobSize
 ![](/assets/blogImg/Unity/OptimizeAnimationClip/OptimizeAnimationClip.gif)  
 
 ```csharp   
-/*
-Author: suijiabin
-*/
+//****************************************************************************
+//
+//  File:      OptimizeAnimationClipTool.cs
+//
+//  Copyright (c) SuiJiaBin
+//
+// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+//
+//****************************************************************************
 using System;
 using System.Collections.Generic;
 using UnityEngine;
