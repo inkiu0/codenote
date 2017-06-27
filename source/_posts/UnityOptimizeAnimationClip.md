@@ -14,7 +14,7 @@ tags:
 
 <!-- more -->  
 ## 各Size含义  
-在参考了王亮的代码后，我也尝试优化了动画文件，发现一个很奇怪的现象。下图中Inspector中显示的大小并没有任何变化，但是文件大小和Profiler中的内存大小确实是减小了。那么Inspector中显示的Size是什么含义呢？  
+在参考了王亮的代码后，我也尝试优化了动画文件，发现一个很奇怪的现象。下图中Inspector中显示的大小并没有任何变化，但是文件大小和Profiler中的内存大小确实是减小了。那么Inspector中显示的Size是什么含义呢？  
 下图中的动画文件不包含Scale曲线，所以这次优化中只压缩了浮点数精度。  
 ![](/assets/blogImg/Unity/OptimizeAnimationClip/noscalecurve.png)  
 我分别对比了动画文件优化前和优化后的大小  
